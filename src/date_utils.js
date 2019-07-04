@@ -141,7 +141,7 @@ export default {
             HH: values[3],
             mm: values[4],
             ss: values[5],
-            SSS:values[6],
+            SSS: values[6],
             D: values[2],
             MMMM: month_names[lang][+values[1]],
             MMM: month_names[lang][+values[1]]
@@ -196,6 +196,9 @@ export default {
 
     today() {
         const vals = this.get_date_values(new Date()).slice(0, 3);
+        /*const date = new Date();
+        date.setDate(31);
+        return date;*/
         return new Date(...vals);
     },
 
@@ -277,6 +280,11 @@ export default {
             return 29;
         }
         return 28;
+    },
+    getNumberOfWeek(date) {
+        const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+        const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+        return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
     }
 };
 

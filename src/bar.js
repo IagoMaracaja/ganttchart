@@ -13,6 +13,7 @@ export default class Bar {
         this.action_completed = false;
         this.gantt = gantt;
         this.task = task;
+        this.startPosition = 200;
     }
 
     prepare() {
@@ -23,7 +24,7 @@ export default class Bar {
     prepare_values() {
         this.invalid = this.task.invalid;
         this.height = this.gantt.options.bar_height;
-        this.x = this.compute_x();
+        this.x = this.compute_x() + this.startPosition;
         this.y = this.compute_y();
         this.corner_radius = this.gantt.options.bar_corner_radius;
         this.duration =
@@ -32,8 +33,8 @@ export default class Bar {
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
-                this.duration *
-                (this.task.progress / 100) || 0;
+            this.duration *
+            (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id
@@ -74,6 +75,7 @@ export default class Bar {
     }
 
     draw_bar() {
+        let barClass = 'bar ' + this.getTaskLevelColor();
         this.$bar = createSVG('rect', {
             x: this.x,
             y: this.y,
@@ -81,7 +83,7 @@ export default class Bar {
             height: this.height,
             rx: this.corner_radius,
             ry: this.corner_radius,
-            class: 'bar',
+            class: barClass,
             append_to: this.bar_group
         });
 
@@ -94,27 +96,62 @@ export default class Bar {
 
     draw_progress_bar() {
         if (this.invalid) return;
+        let barProgressClass = 'bar ' + this.getTaskLevelProgressColor();
+
+        let x = this.x;
+        let y = this.y;
+        let height = this.height;
+        const strokeSize = 1;
+        if (this.task.overdue) {
+            x += strokeSize;
+            y += strokeSize;
+            height -= strokeSize + 1;
+        }
         this.$bar_progress = createSVG('rect', {
-            x: this.x,
-            y: this.y,
+            x: x,
+            y: y,
             width: this.progress_width,
-            height: this.height,
+            height: height,
             rx: this.corner_radius,
             ry: this.corner_radius,
-            class: 'bar-progress',
+            class: barProgressClass,
             append_to: this.bar_group
         });
-
         animateSVG(this.$bar_progress, 'width', 0, this.progress_width);
     }
 
     draw_label() {
-        createSVG('text', {
+        const textSVG = createSVG('text', {
             x: this.x + this.width / 2,
             y: this.y + this.height / 2,
-            innerHTML: this.task.name,
-            class: 'bar-label',
-            append_to: this.bar_group
+            append_to: this.bar_group,
+            class: 'bar-label'
+        });
+        const taskNameSVG = createSVG('tspan', {
+            append_to: textSVG,
+            innerHTML: this.task.name
+        });
+        const taskProgressSVG = createSVG('tspan', {
+            append_to: this.bar_group,
+            innerHTML: ' ' + this.task.progress + '%',
+            class: 'bar-label-progress'
+        });
+        taskNameSVG.appendChild(taskProgressSVG);
+        // labels get BBox in the next tick
+        requestAnimationFrame(() => this.update_label_position());
+    }
+
+    draw_label_just_progress() {
+        const textSVG = createSVG('text', {
+            x: this.x + this.width / 2,
+            y: this.y + this.height / 2,
+            append_to: this.bar_group,
+            class: 'bar-label'
+        });
+        createSVG('tspan', {
+            append_to: textSVG,
+            innerHTML: ' ' + this.task.progress + '%',
+            class: 'bar-label-progress'
         });
         // labels get BBox in the next tick
         requestAnimationFrame(() => this.update_label_position());
@@ -171,7 +208,9 @@ export default class Bar {
 
     bind() {
         if (this.invalid) return;
-        this.setup_click_event();
+        if (this.task.overdue) {
+            this.setup_click_event();
+        }
     }
 
     setup_click_event() {
@@ -207,7 +246,7 @@ export default class Bar {
             target_element: this.$bar,
             title: this.task.name,
             subtitle: subtitle,
-            task: this.task,
+            task: this.task
         });
     }
 
@@ -314,7 +353,7 @@ export default class Bar {
         return (
             this.gantt.options.header_height +
             this.gantt.options.padding +
-            this.task._index * (this.height + this.gantt.options.padding)
+            this.task._index * (this.height + this.gantt.options.padding * 2)
         );
     }
 
@@ -373,11 +412,74 @@ export default class Bar {
 
         if (label.getBBox().width > bar.getWidth()) {
             label.classList.add('big');
-            label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
+            //const marginLeft = 15;
+            this.showTooltipToBigBar();
+            label.remove();
+            this.draw_label_just_progress();
+            //label.setAttribute('x', bar.getX() + bar.getWidth() + marginLeft);
+            //this.shapeYearLabel(bar, label, marginLeft);
         } else {
             label.classList.remove('big');
             label.setAttribute('x', bar.getX() + bar.getWidth() / 2);
         }
+    }
+
+    showTooltipToBigBar() {
+        $.on(this.group, 'mouseover ' + this.gantt.options.popup_trigger, e => {
+            if (this.action_completed) {
+                // just finished a move action, wait for a few seconds
+                return;
+            }
+
+            if (e.type === 'click') {
+                this.gantt.trigger_event('click', [this.task]);
+            }
+
+
+            this.gantt.unselect_all();
+            this.group.classList.toggle('active');
+
+            this.addStyleForPopup();
+            this.gantt.show_popup({
+                target_element: this.$bar,
+                title: this.task.name,
+                /* subtitle: subtitle,*/
+                task: this.task
+            });
+
+        });
+    }
+
+    addStyleForPopup() {
+        this.gantt.popup_wrapper.classList.add(this.getPopupClassByTaskLevel());
+
+        for (let token of this.gantt.popup_wrapper.classList) {
+            if (token !== 'popup-wrapper-color') {
+                this.gantt.popup_wrapper.classList.remove(token);
+            }
+        }
+        this.gantt.popup_wrapper.classList.add(this.getPopupClassByTaskLevel());
+
+    }
+
+    shapeYearLabel(bar, label, marginLeft) {
+        const marginUpBottom = 10;
+        const marginLeftRight = 6;
+        const cornerRadius = 3;
+        const heightToShape = label.getBBox().height + marginUpBottom;
+        const widthToShape = label.getBBox().width + marginLeftRight + marginLeft;
+        const yearShapeY = label.getBBox().y - marginUpBottom / 2;
+        const yearShapeX = bar.getX() + bar.getWidth() + marginLeftRight;
+        createSVG('rect', {
+            x: yearShapeX,
+            y: yearShapeY,
+            width: widthToShape,
+            height: heightToShape,
+            rx: cornerRadius,
+            ry: cornerRadius,
+            class: 'year-context',
+            append_to: this.bar_group
+        });
     }
 
     update_handle_position() {
@@ -390,7 +492,7 @@ export default class Bar {
             .setAttribute('x', bar.getEndX() - 9);
         const handle = this.group.querySelector('.handle.progress');
         handle &&
-            handle.setAttribute('points', this.get_progress_polygon_points());
+        handle.setAttribute('points', this.get_progress_polygon_points());
     }
 
     update_arrow_position() {
@@ -399,6 +501,56 @@ export default class Bar {
             arrow.update();
         }
     }
+
+    getTaskLevelProgressColor() {
+        if (this.invalid) return;
+        const overdueItem = this.task.overdue ? ' bar-progress-overdue' : '';
+        switch (this.task.level) {
+            case 0:
+                return 'bar-progress-zero' + overdueItem;
+            case 1:
+                return 'bar-progress-one' + overdueItem;
+            case 2:
+                return 'bar-progress-two' + overdueItem;
+            case 3:
+                return 'bar-progress-three' + overdueItem;
+            default:
+                return 'bar-progress-one' + overdueItem;
+        }
+    }
+
+    getTaskLevelColor() {
+        if (this.invalid) return;
+        const overdueItem = this.task.overdue ? ' bar-overdue' : '';
+        switch (this.task.level) {
+            case 0:
+                return 'bar-level-zero' + overdueItem;
+            case 1:
+                return 'bar-level-one' + overdueItem;
+            case 2:
+                return 'bar-level-two' + overdueItem;
+            case 3:
+                return 'bar-level-three' + overdueItem;
+            default:
+                return 'bar-level-one' + overdueItem;
+        }
+    }
+
+    getPopupClassByTaskLevel() {
+        switch (this.task.level) {
+            case 0:
+                return 'task-level-zero';
+            case 1:
+                return 'task-level-one';
+            case 2:
+                return 'task-level-two';
+            case 3:
+                return 'task-level-three';
+            default:
+                return 'task-level-one';
+        }
+    }
+
 }
 
 function isFunction(functionToCheck) {

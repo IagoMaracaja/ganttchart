@@ -3,21 +3,21 @@ import uglify from 'rollup-plugin-uglify';
 import merge from 'deepmerge';
 
 const dev = {
-    input: 'src/index.js',
+    input: 'src/new_index.js',
     output: {
-        name: 'Gantt',
-        file: 'dist/frappe-gantt.js',
+        name: 'GanttChart',
+        file: 'dist/gantt-chart.js',
         format: 'iife'
     },
     plugins: [
         sass({
-            output: 'dist/frappe-gantt.css'
+            output: 'dist/gantt-chart.css'
         })
     ]
 };
 const prod = merge(dev, {
     output: {
-        file: 'dist/frappe-gantt.min.js'
+        file: 'dist/gantt-chart.min.js'
     },
     plugins: [uglify()]
 });

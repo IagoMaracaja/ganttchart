@@ -1,8 +1,8 @@
 {
-  "name": "frappe-gantt",
-  "version": "0.3.0",
-  "description": "A simple, modern, interactive gantt library for the web",
-  "main": "src/index.js",
+  "name": "gantt-chart",
+  "version": "1.0.0",
+  "description": "A gantt chart focused on task level.",
+  "main": "src/new_index.js",
   "scripts": {
     "start": "yarn run dev",
     "build": "rollup -c",
@@ -18,12 +18,13 @@
   "keywords": [
     "gantt",
     "svg",
+    "gantt-chart",
     "simple gantt",
     "project timeline",
     "interactive gantt",
     "project management"
   ],
-  "author": "Faris Ansari",
+  "author": "Andre Iago",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/frappe/gantt/issues"
@@ -43,5 +44,8 @@
   },
   "eslintIgnore": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "yarn": "^1.16.0"
+  }
 }

@@ -1,29 +1,71 @@
+:root {
+  --bar-level-zero-color: #D7E2FF;
+  --progress-bar-level-zero-color: #648DFF;
+  --bar-level-one-color: #C5E09F;
+  --progress-bar-level-one-color: #97C94E;
+  --bar-level-two-color: #FAF4D1;
+  --progress-bar-level-two-color: #F0DC6F;
+  --bar-level-three-color: #F9E7DA;
+  --progress-bar-level-three-color: #F0C09D; }
+
 .gantt .grid-background {
   fill: none; }
 
 .gantt .grid-header {
-  fill: #ffffff;
+  fill: #D8D8D8;
   stroke: #e0e0e0;
   stroke-width: 1.4; }
+
+.gantt .task-header {
+  fill: #ffffff;
+  stroke: #a8a8a8;
+  stroke-width: 1; }
+
+.gantt .overdue-label {
+  stroke-width: 1;
+  stroke: #F06C6C;
+  dominant-baseline: central;
+  text-anchor: middle; }
+
+.gantt .task-name {
+  stroke-width: 1;
+  stroke: #000000;
+  dominant-baseline: central;
+  text-anchor: middle; }
 
 .gantt .grid-row {
   fill: #ffffff; }
 
 .gantt .grid-row:nth-child(even) {
-  fill: #f5f5f5; }
+  fill: #ffffff; }
 
 .gantt .row-line {
   stroke: #ebeff2; }
+
+.gantt .last-row-line {
+  stroke: #a8a8a8; }
 
 .gantt .tick {
   stroke: #e0e0e0;
   stroke-width: 0.2; }
   .gantt .tick.thick {
-    stroke-width: 0.4; }
+    stroke-width: 0; }
 
 .gantt .today-highlight {
-  fill: #fcf8e3;
+  fill: #fbaf1c;
   opacity: 0.5; }
+
+.gantt .month-divisor {
+  fill: none;
+  stroke: #666;
+  stroke-linecap: butt;
+  stroke-dasharray: 10, 8;
+  opacity: 0.5; }
+
+.gantt .today-divisor {
+  fill: none;
+  stroke: #fbaf1c;
+  stroke-linecap: butt; }
 
 .gantt .arrow {
   fill: none;
@@ -31,14 +73,39 @@
   stroke-width: 1.4; }
 
 .gantt .bar {
-  fill: #b8c2cc;
   stroke: #8D99A6;
   stroke-width: 0;
   transition: stroke-width .3s ease;
   user-select: none; }
 
-.gantt .bar-progress {
-  fill: #a3a3ff; }
+.gantt .bar-level-zero {
+  fill: var(--bar-level-zero-color); }
+
+.gantt .bar-level-one {
+  fill: var(--bar-level-one-color); }
+
+.gantt .bar-level-two {
+  fill: var(--bar-level-two-color); }
+
+.gantt .bar-level-three {
+  fill: var(--bar-level-three-color); }
+
+.gantt .bar-overdue {
+  stroke-width: 2;
+  stroke: #F06C6C;
+  stroke-opacity: 1; }
+
+.gantt .bar-progress-zero {
+  fill: var(--progress-bar-level-zero-color); }
+
+.gantt .bar-progress-one {
+  fill: var(--progress-bar-level-one-color); }
+
+.gantt .bar-progress-two {
+  fill: var(--progress-bar-level-two-color); }
+
+.gantt .bar-progress-three {
+  fill: var(--progress-bar-level-three-color); }
 
 .gantt .bar-invalid {
   fill: transparent;
@@ -49,7 +116,7 @@
     fill: #555; }
 
 .gantt .bar-label {
-  fill: #fff;
+  fill: #000000;
   dominant-baseline: central;
   text-anchor: middle;
   font-size: 12px;
@@ -58,6 +125,16 @@
     fill: #555;
     text-anchor: start; }
 
+.gantt .bar-label-progress {
+  font-weight: 800;
+  font-size: 12px; }
+
+.gantt .year-context {
+  stroke-width: 0.7;
+  fill: none;
+  stroke: #000000;
+  stroke-dasharray: 10, 9; }
+
 .gantt .handle {
   fill: #ddd;
   cursor: ew-resize;
@@ -65,20 +142,41 @@
   visibility: hidden;
   transition: opacity .3s ease; }
 
+.gantt .filter {
+  fill: #ffffff; }
+
 .gantt .bar-wrapper {
   cursor: pointer;
-  outline: none; }
-  .gantt .bar-wrapper:hover .bar {
-    fill: #a9b5c1; }
-  .gantt .bar-wrapper:hover .bar-progress {
-    fill: #8a8aff; }
-  .gantt .bar-wrapper:hover .handle {
-    visibility: visible;
-    opacity: 1; }
-  .gantt .bar-wrapper.active .bar {
-    fill: #a9b5c1; }
-  .gantt .bar-wrapper.active .bar-progress {
-    fill: #8a8aff; }
+  outline: none;
+  /*&:hover {
+      .bar {
+        //fill: darken(var(--bar-progress-color-light), 5);
+        fill: var(--bar-progress-color-light);
+      }
+
+      .bar-progress {
+        //fill: darken(var(--bar-progress-color), 5);
+        fill: var(--bar-progress-color);
+      }
+
+      .handle {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+
+    &.active {
+      .bar {
+        //fill: darken(var(--bar-progress-color-light), 5);
+        fill: var(--bar-progress-color-light);
+      }
+
+      .bar-progress {
+        //fill: darken(var(--bar-progress-color), 5);
+        fill: var(--bar-progress-color);
+      }
+    }
+     */ }
 
 .gantt .lower-text, .gantt .upper-text {
   font-size: 12px;
@@ -95,25 +193,59 @@
 
 .gantt-container {
   position: relative;
-  overflow: auto;
-  font-size: 12px; }
+  overflow-x: scroll;
+  overflow-y: scroll;
+  font-size: 12px;
+  height: 500px; }
   .gantt-container .popup-wrapper {
     position: absolute;
     top: 0;
     left: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: #F06C6C;
     padding: 0;
-    color: #959da5;
+    color: white;
+    font-style: oblique;
     border-radius: 3px; }
     .gantt-container .popup-wrapper .title {
-      border-bottom: 3px solid #a3a3ff;
       padding: 10px; }
-    .gantt-container .popup-wrapper .subtitle {
-      padding: 10px;
-      color: #dfe2e5; }
     .gantt-container .popup-wrapper .pointer {
       position: absolute;
       height: 5px;
       margin: 0 0 0 -5px;
       border: 5px solid transparent;
-      border-top-color: rgba(0, 0, 0, 0.8); }
+      border-top-color: #F06C6C; }
+  .gantt-container .popup-wrapper-color {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #4a76f0;
+    padding: 0;
+    color: white;
+    border-radius: 3px;
+    width: max-content; }
+    .gantt-container .popup-wrapper-color .title {
+      padding: 10px;
+      color: #000000;
+      font-weight: lighter; }
+    .gantt-container .popup-wrapper-color .pointer {
+      position: absolute;
+      height: 5px;
+      margin: 0 0 0 -5px;
+      border: 5px solid transparent;
+      border-top-color: #4a76f0; }
+  .gantt-container .task-level-zero {
+    background: var(--progress-bar-level-zero-color); }
+    .gantt-container .task-level-zero .pointer {
+      border-top-color: var(--progress-bar-level-zero-color); }
+  .gantt-container .task-level-one {
+    background: var(--progress-bar-level-one-color); }
+    .gantt-container .task-level-one .pointer {
+      border-top-color: var(--progress-bar-level-one-color); }
+  .gantt-container .task-level-two {
+    background: var(--progress-bar-level-two-color); }
+    .gantt-container .task-level-two .pointer {
+      border-top-color: var(--progress-bar-level-two-color); }
+  .gantt-container .task-level-three {
+    background: var(--progress-bar-level-three-color); }
+    .gantt-container .task-level-three .pointer {
+      border-top-color: var(--progress-bar-level-three-color); }
