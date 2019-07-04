@@ -7,7 +7,6 @@
              </a>javascript lib as base.
          </p>
     </p>
-     
 </div>
 
 ### Install:
