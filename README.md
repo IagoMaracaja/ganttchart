@@ -11,7 +11,7 @@
 
 ### Install:
 ```
-npm install frappe-gantt
+npm install js-gantt-chart
 ```
 
 ### Usage:
