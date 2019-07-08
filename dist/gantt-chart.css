@@ -6,7 +6,9 @@
   --bar-level-two-color: #FAF4D1;
   --progress-bar-level-two-color: #F0DC6F;
   --bar-level-three-color: #F9E7DA;
-  --progress-bar-level-three-color: #F0C09D; }
+  --progress-bar-level-three-color: #F0C09D;
+  --gantt-container-width: 100%;
+  --gantt-container-height: 100%; }
 
 .gantt .grid-background {
   fill: none; }
@@ -196,7 +198,8 @@
   overflow-x: scroll;
   overflow-y: scroll;
   font-size: 12px;
-  height: 500px; }
+  height: var(--gantt-container-height);
+  width: var(--gantt-container-width); }
   .gantt-container .popup-wrapper {
     position: absolute;
     top: 0;
@@ -214,6 +217,9 @@
       margin: 0 0 0 -5px;
       border: 5px solid transparent;
       border-top-color: #F06C6C; }
+  .gantt-container .gantt-target {
+    height: var(--gantt-container-height);
+    width: 100%; }
   .gantt-container .popup-wrapper-color {
     position: absolute;
     top: 0;
@@ -249,3 +255,55 @@
     background: var(--progress-bar-level-three-color); }
     .gantt-container .task-level-three .pointer {
       border-top-color: var(--progress-bar-level-three-color); }
+  .gantt-container .radio-btn {
+    margin-left: 40px;
+    /* The Container */
+    /* Hide the browser's default radio button */
+    /* Create a custom radio button */
+    /* On mouse-over, add a grey background color */
+    /* When the radio button is checked, add a blue background */
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    /* Show the indicator (dot/circle) when checked */
+    /* Style the indicator (dot/circle) */ }
+    .gantt-container .radio-btn .container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 11px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: bold;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; }
+    .gantt-container .radio-btn .container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer; }
+    .gantt-container .radio-btn .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 18px;
+      width: 18px;
+      background-color: white;
+      border-radius: 10%;
+      border: 1px  solid #75B141; }
+    .gantt-container .radio-btn .container:hover input ~ .checkmark {
+      background-color: #dbead6; }
+    .gantt-container .radio-btn .container input:checked ~ .checkmark {
+      background-color: white; }
+    .gantt-container .radio-btn .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none; }
+    .gantt-container .radio-btn .container input:checked ~ .checkmark:after {
+      display: block; }
+    .gantt-container .radio-btn .container .checkmark:after {
+      top: 6px;
+      left: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 80%;
+      background: #75B141; }

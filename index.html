@@ -6,148 +6,15 @@
     <style>
         body {
             font-family: sans-serif;
-            background: #ccc;
-        }
-
-        .container {
-            width: 50%;
-            margin: 0 auto;
-        }
-
-        /* custom class */
-        .gantt .bar-milestone .bar {
-            fill: tomato;
+            width: auto;
         }
     </style>
     <link rel="stylesheet" href="dist/gantt-chart.css"/>
     <script src="dist/gantt-chart.js"></script>
 </head>
 <body>
-<div class="container">
-    <div class="gantt-target"></div>
-</div>
+<div class="gantt-target"></div>
 <script>
-    var tasks = [
-        {
-            name: 'Kick Off',
-            start: '2018-11-27',
-            end: '2019-05-27',
-            level: 0,
-            progress: 10,
-            overdue: false,
-            taskList: [
-                {
-                    start: '2018-11-27',
-                    end: '2018-12-10',
-                    name: 'Kick off',
-                    id: 'Task 1',
-                    progress: 5,
-                    level: 1,
-                    overdue: false
-                },
-                {
-                    start: '2018-11-27',
-                    end: '2018-12-09',
-                    name: 'CEB approval',
-                    id: 'Task 2',
-                    progress: 100,
-                    level: 1,
-                    overdue: false
-                },
-                {
-                    start: '2018-11-27',
-                    end: '2018-12-09',
-                    name: 'CEB confirm kick off project',
-                    id: 'Task 3',
-                    progress: 100,
-                    level: 3,
-                    overdue: false
-                },
-                {
-                    start: '2018-11-27',
-                    end: '2018-12-09',
-                    name: 'CEB confirm monthly FCST',
-                    id: 'Task 4',
-                    progress: 100,
-                    level: 3,
-                    overdue: false
-                },
-                {
-                    start: '2018-12-10',
-                    end: '2018-12-20',
-                    name: 'Transition agreement with ODM',
-                    id: 'Task 5',
-                    progress: 9,
-                    level: 2,
-                    overdue: false
-                },
-                {
-                    start: '2018-12-10',
-                    end: '2018-12-20',
-                    name: 'BIOS burn',
-                    id: 'Task 6',
-                    progress: 0,
-                    level: 3,
-                    overdue: false
-                }
-            ]
-        },
-        {
-            name: 'BOM',
-            start: '2018-11-27',
-            end: '2019-05-27',
-            level: 0,
-            progress: 15,
-            overdue: false,
-            taskList: [
-                {
-                    start: '2018-12-12',
-                    end: '2019-01-10',
-                    name: 'BOM',
-                    id: 'Task 7',
-                    progress: 0,
-                    level: 1,
-                    overdue: false
-                },
-                {
-                    start: '2018-12-12',
-                    end: '2018-12-15',
-                    name: 'Customer BOM',
-                    id: 'Task 8',
-                    progress: 0,
-                    level: 2,
-                    overdue: false
-                },
-                {
-                    start: '2018-12-16',
-                    end: '2018-12-21',
-                    name: 'Modulization Definition',
-                    id: 'Task 9',
-                    progress: 0,
-                    level: 2,
-                    overdue: false
-                },
-                {
-                    start: '2018-12-22',
-                    end: '2018-12-27',
-                    name: 'Transition NUDD',
-                    id: 'Task 10',
-                    progress: 0,
-                    level: 2,
-                    overdue: false
-                },
-                {
-                    start: '2019-06-28',
-                    end: '2019-07-15',
-                    name: 'ODM BOM',
-                    id: 'Task 11',
-                    progress: 0,
-                    level: 2,
-                    overdue: false
-                }
-            ]
-        }
-    ];
 
     var mock = [
         {
@@ -239,9 +106,10 @@
         on_view_change: function(mode) {
             console.log('View mode: ', mode);
         },
-        view_mode: 'Month',
+        view_mode: 'Day',
         language: 'en'
     });
+
 
 </script>
 </body>

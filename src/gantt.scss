@@ -26,6 +26,9 @@ $stroke-line-color: #a8a8a8 !default;
 
   --bar-level-three-color: #F9E7DA;
   --progress-bar-level-three-color: #F0C09D;
+
+  --gantt-container-width: 100%;
+  --gantt-container-height: 100%;
 }
 
 .gantt {
@@ -263,7 +266,8 @@ $stroke-line-color: #a8a8a8 !default;
   overflow-x: scroll;
   overflow-y: scroll;
   font-size: 12px;
-  height: 500px;
+  height: var(--gantt-container-height);
+  width: var(--gantt-container-width);
 
   .popup-wrapper {
     position: absolute;
@@ -286,6 +290,11 @@ $stroke-line-color: #a8a8a8 !default;
       border: 5px solid transparent;
       border-top-color: #F06C6C;
     }
+  }
+
+  .gantt-target {
+    height: var(--gantt-container-height);
+    width: 100%;
   }
 
   .popup-wrapper-color {
@@ -343,6 +352,74 @@ $stroke-line-color: #a8a8a8 !default;
 
     .pointer {
       border-top-color: var(--progress-bar-level-three-color);
+    }
+  }
+  .radio-btn {
+    margin-left: 40px;
+    /* The Container */
+    .container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 11px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: bold;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default radio button */
+    .container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* Create a custom radio button */
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 18px;
+      width: 18px;
+      background-color: white;
+      border-radius: 10%;
+      border:1px  solid #75B141;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .container:hover input ~ .checkmark {
+      background-color: #dbead6;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .container input:checked ~ .checkmark {
+      background-color: white;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .container input:checked ~ .checkmark:after {
+      display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .container .checkmark:after {
+      top: 6px;
+      left: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 80%;
+      background: #75B141;
     }
   }
 }

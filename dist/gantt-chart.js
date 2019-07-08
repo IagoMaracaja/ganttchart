@@ -1,5 +1,8 @@
-var GanttChart = (function () {
-'use strict';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.GanttChart = factory());
+}(this, (function () { 'use strict';
 
 const YEAR = 'year';
 const MONTH = 'month';
@@ -1059,6 +1062,90 @@ class Popup {
     }
 }
 
+class Filter {
+    constructor(gantt) {
+        this.gantt = gantt;
+    }
+
+    getFilter() {
+        return `
+        <div class="radio-btn">
+            <label class="container">Days
+               <input type="radio" id="radioDay" checked="checked" name="radio">
+               <span class="checkmark"/>
+            </label>
+            <label class="container">Week
+              <input type="radio" id="radioWeek" name="radio">
+              <span class="checkmark"/>
+            </label>
+            <label class="container">Month
+              <input type="radio" id="radioMonth" name="radio">
+              <span class="checkmark"/>
+            </label>
+        </div>
+    `;
+    }
+
+    checkDefault(filterType) {
+        switch (filterType) {
+            case 1:
+                let radioBtnDay = document.getElementById('radioDay');
+                radioBtnDay.setAttribute('checked', true);
+                break;
+            case 2:
+                let radioBtnWeek = document.getElementById('radioWeek');
+                radioBtnWeek.setAttribute('checked', true);
+                break;
+            case 3:
+                let radioBtnMonth = document.getElementById('radioMonth');
+                radioBtnMonth.setAttribute('checked', true);
+                break;
+        }
+
+    }
+
+    setClick(gantt) {
+        let radioBtnDay = document.getElementById('radioDay');
+        radioBtnDay.addEventListener(
+            'click',
+            function() {
+                Filter.changeFilter(1, gantt);
+            },
+            false
+        );
+        let radioBtnWeek = document.getElementById('radioWeek');
+        radioBtnWeek.addEventListener(
+            'click',
+            function() {
+                Filter.changeFilter(2, gantt);
+            },
+            false
+        );
+        let radioBtnMonth = document.getElementById('radioMonth');
+        radioBtnMonth.addEventListener(
+            'click',
+            function() {
+                Filter.changeFilter(3, gantt);
+            },
+            false
+        );
+    }
+
+    static changeFilter(filterType, gantt) {
+        switch (filterType) {
+            case 1:
+                gantt.refreshByFilter('Day');
+                break;
+            case 2:
+                gantt.refreshByFilter('Week');
+                break;
+            case 3:
+                gantt.refreshByFilter('Month');
+                break;
+        }
+    }
+}
+
 class GanttChart {
     constructor(wrapper, tasks, options) {
         this.createVars();
@@ -1237,6 +1324,11 @@ class GanttChart {
         this.change_view_mode();
     }
 
+    refreshByFilter(viewMode) {
+        this.setup_tasks(this.allTasks);
+        this.change_view_mode(viewMode);
+    }
+
     change_view_mode(mode = this.options.view_mode) {
         this.update_view_scale(mode);
         this.setup_dates();
@@ -1300,6 +1392,9 @@ class GanttChart {
         } else if (this.view_is('Year')) {
             this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
+        } else if (this.view_is('Week')) {
+            this.gantt_start = date_utils.add(this.gantt_start, -5, 'day');
+            this.gantt_end = date_utils.add(this.gantt_end, 2, 'month');
         } else {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'day');
             this.gantt_end = date_utils.add(this.gantt_end, 5, 'day');
@@ -1362,7 +1457,8 @@ class GanttChart {
 
     make_filter() {
         const filter_height = this.options.header_height;
-        createSVG('rect', {
+        const filter = new Filter(this);
+        const filterLayer = createSVG('svg', {
             x: 0,
             y: 0,
             width: this.startPosition,
@@ -1370,6 +1466,28 @@ class GanttChart {
             class: 'filter',
             append_to: this.layers.grid
         });
+
+        createSVG('foreignObject', {
+            x: 0,
+            y: 0,
+            width: this.startPosition,
+            height: filter_height,
+            innerHTML: filter.getFilter(),
+            class: 'filter',
+            append_to: filterLayer
+        });
+        filter.checkDefault(this.getFilterType());
+        filter.setClick(this);
+    }
+
+    getFilterType() {
+        if (this.view_is('Day')) {
+            return 1;
+        } else if (this.view_is('Week')) {
+            return 2;
+        } else {
+            return 3;
+        }
     }
 
     make_grid() {
@@ -1388,7 +1506,8 @@ class GanttChart {
     }
 
     make_grid_background() {
-        const grid_width = this.dates.length * this.options.column_width;
+        const grid_width =
+            this.dates.length * this.options.column_width + this.startPosition;
         const grid_height =
             this.options.header_height +
             this.options.padding +
@@ -1403,9 +1522,17 @@ class GanttChart {
             class: 'grid-background',
             append_to: this.layers.grid
         });
+        // Setting width as default value until calculates the total area
+        this.changeGridAttr(grid_height, grid_width);
+        if (grid_width < screen.width) {
+            GanttChart.changeGanttContainerWidth(grid_width);
+        }
+    }
+
+    changeGridAttr(grid_height, grid_width) {
         $.attr(this.$svg, {
             height: grid_height,
-            width: '100%'
+            width: grid_width
         });
     }
 
@@ -1414,7 +1541,9 @@ class GanttChart {
         const lines_layer = createSVG('g', { append_to: this.layers.grid });
 
         let row_width = this.dates.length * this.options.column_width;
+        //row_width += this.startPosition;
         const row_height = this.options.bar_height + this.options.padding * 2;
+        const line_row_width = row_width + this.startPosition;
 
         //let row_y = this.options.header_height + this.options.padding / 2;
         let row_y = this.options.header_height;
@@ -1433,13 +1562,13 @@ class GanttChart {
 
                 if (pos === tsk.taskList.length - 1) {
                     lineClass = 'last-row-line';
-                    row_width += this.startPosition;
+                    //row_width += this.startPosition;
                 }
 
                 createSVG('line', {
                     x1: this.startPosition,
                     y1: row_y + row_height,
-                    x2: row_width,
+                    x2: line_row_width,
                     y2: row_y + row_height,
                     class: lineClass,
                     append_to: lines_layer
@@ -1520,8 +1649,7 @@ class GanttChart {
             newSVGHeight += header_height;
         }
         $.attr(this.$svg, {
-            height: newSVGHeight,
-            width: '100%'
+            height: newSVGHeight
         });
     }
 
@@ -1601,6 +1729,7 @@ class GanttChart {
 
                 if (weekReference === 0 || weekReference === 5) {
                     tick_class += ' thick';
+                    weekReference = 0;
                 }
                 weekReference++;
             }
@@ -1622,13 +1751,10 @@ class GanttChart {
         // highlight today's date
         let boxXCoords = 0;
         if (this.view_is('Day')) {
-            console.log('Get Day highlight -> ', this.todayXCoord);
             boxXCoords = this.todayXCoord;
         } else if (this.view_is('Month')) {
-            console.log('Get Month highlight -> ', this.highlightMonthXCoords);
             boxXCoords = this.highlightMonthXCoords;
         } else if (this.view_is('Week')) {
-            console.log('Get Week highlight -> ', this.highlightWeekXCoords);
             boxXCoords = this.highlightWeekXCoords;
         }
         let x =
@@ -2040,7 +2166,7 @@ class GanttChart {
             }, []);
 
             out = out.concat(deps);
-            to_process = deps.filter(d => !to_process.includes(d));
+            to_process = Filter.filter(d => !to_process.includes(d));
         }
 
         return out.filter(Boolean);
@@ -2152,6 +2278,13 @@ class GanttChart {
     clear() {
         this.$svg.innerHTML = '';
     }
+
+    static changeGanttContainerWidth(ganttWidth) {
+        document.documentElement.style.setProperty(
+            '--gantt-container-width',
+            ganttWidth + 'px'
+        );
+    }
 }
 
 function generate_id(task) {
@@ -2166,4 +2299,4 @@ function generate_id(task) {
 
 return GanttChart;
 
-}());
+})));

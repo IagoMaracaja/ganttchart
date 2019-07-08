@@ -3,11 +3,11 @@ import uglify from 'rollup-plugin-uglify';
 import merge from 'deepmerge';
 
 const dev = {
-    input: 'src/new_index.js',
+    input: 'src/index.js',
     output: {
         name: 'GanttChart',
         file: 'dist/gantt-chart.js',
-        format: 'iife'
+        format: 'umd'
     },
     plugins: [
         sass({
