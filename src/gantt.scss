@@ -301,7 +301,7 @@ $stroke-line-color: #a8a8a8 !default;
     position: absolute;
     top: 0;
     left: 0;
-    background: #4a76f0;
+    background: $overdue-color;
     padding: 0;
     color: white;
     border-radius: 3px;
@@ -319,7 +319,7 @@ $stroke-line-color: #a8a8a8 !default;
       height: 5px;
       margin: 0 0 0 -5px;
       border: 5px solid transparent;
-      border-top-color: #4a76f0;
+      border-top-color: $overdue-color;
     }
   }
 
@@ -354,6 +354,18 @@ $stroke-line-color: #a8a8a8 !default;
       border-top-color: var(--progress-bar-level-three-color);
     }
   }
+
+  .task-overdue {
+    background: $overdue-color;
+    .title {
+      color: white;
+      font-weight: bold;
+    }
+    .pointer {
+      border-top-color: $overdue-color;
+    }
+  }
+
   .radio-btn {
     margin-left: 40px;
     /* The Container */

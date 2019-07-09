@@ -224,7 +224,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: #4a76f0;
+    background: #F06C6C;
     padding: 0;
     color: white;
     border-radius: 3px;
@@ -238,7 +238,7 @@
       height: 5px;
       margin: 0 0 0 -5px;
       border: 5px solid transparent;
-      border-top-color: #4a76f0; }
+      border-top-color: #F06C6C; }
   .gantt-container .task-level-zero {
     background: var(--progress-bar-level-zero-color); }
     .gantt-container .task-level-zero .pointer {
@@ -255,6 +255,13 @@
     background: var(--progress-bar-level-three-color); }
     .gantt-container .task-level-three .pointer {
       border-top-color: var(--progress-bar-level-three-color); }
+  .gantt-container .task-overdue {
+    background: #F06C6C; }
+    .gantt-container .task-overdue .title {
+      color: white;
+      font-weight: bold; }
+    .gantt-container .task-overdue .pointer {
+      border-top-color: #F06C6C; }
   .gantt-container .radio-btn {
     margin-left: 40px;
     /* The Container */

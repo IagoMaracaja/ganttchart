@@ -651,9 +651,9 @@ class Bar {
 
     bind() {
         if (this.invalid) return;
-        if (this.task.overdue) {
+        /*if (this.task.overdue) {
             this.setup_click_event();
-        }
+        }*/
     }
 
     setup_click_event() {
@@ -853,21 +853,22 @@ class Bar {
         const bar = this.$bar,
             label = this.group.querySelector('.bar-label');
 
+        if (this.task.overdue) {
+            this.showTooltipToBigBar(true);
+        }
+
         if (label.getBBox().width > bar.getWidth()) {
             label.classList.add('big');
-            //const marginLeft = 15;
-            this.showTooltipToBigBar();
+            this.showTooltipToBigBar(false);
             label.remove();
             this.draw_label_just_progress();
-            //label.setAttribute('x', bar.getX() + bar.getWidth() + marginLeft);
-            //this.shapeYearLabel(bar, label, marginLeft);
         } else {
             label.classList.remove('big');
             label.setAttribute('x', bar.getX() + bar.getWidth() / 2);
         }
     }
 
-    showTooltipToBigBar() {
+    showTooltipToBigBar(overdue) {
         $.on(this.group, 'mouseover ' + this.gantt.options.popup_trigger, e => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
@@ -883,9 +884,16 @@ class Bar {
             this.group.classList.toggle('active');
 
             this.addStyleForPopup();
+            let title = '';
+            if (overdue) {
+                title = 100 - this.task.progress + '% overdue';
+            } else {
+                title = this.task.name;
+            }
+
             this.gantt.show_popup({
                 target_element: this.$bar,
-                title: this.task.name,
+                title: title,
                 /* subtitle: subtitle,*/
                 task: this.task
             });
@@ -903,26 +911,6 @@ class Bar {
         }
         this.gantt.popup_wrapper.classList.add(this.getPopupClassByTaskLevel());
 
-    }
-
-    shapeYearLabel(bar, label, marginLeft) {
-        const marginUpBottom = 10;
-        const marginLeftRight = 6;
-        const cornerRadius = 3;
-        const heightToShape = label.getBBox().height + marginUpBottom;
-        const widthToShape = label.getBBox().width + marginLeftRight + marginLeft;
-        const yearShapeY = label.getBBox().y - marginUpBottom / 2;
-        const yearShapeX = bar.getX() + bar.getWidth() + marginLeftRight;
-        createSVG('rect', {
-            x: yearShapeX,
-            y: yearShapeY,
-            width: widthToShape,
-            height: heightToShape,
-            rx: cornerRadius,
-            ry: cornerRadius,
-            class: 'year-context',
-            append_to: this.bar_group
-        });
     }
 
     update_handle_position() {
@@ -980,6 +968,9 @@ class Bar {
     }
 
     getPopupClassByTaskLevel() {
+        if (this.task.overdue) {
+            return 'task-overdue';
+        }
         switch (this.task.level) {
             case 0:
                 return 'task-level-zero';
@@ -993,7 +984,6 @@ class Bar {
                 return 'task-level-one';
         }
     }
-
 }
 
 class Popup {
