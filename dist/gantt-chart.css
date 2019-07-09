@@ -301,9 +301,9 @@
     .gantt-container .radio-btn .container input:checked ~ .checkmark:after {
       display: block; }
     .gantt-container .radio-btn .container .checkmark:after {
-      top: 6px;
-      left: 6px;
-      width: 6px;
-      height: 6px;
+      top: 4px;
+      left: 4px;
+      width: 10px;
+      height: 10px;
       border-radius: 80%;
       background: #75B141; }

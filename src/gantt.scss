@@ -414,10 +414,10 @@ $stroke-line-color: #a8a8a8 !default;
 
     /* Style the indicator (dot/circle) */
     .container .checkmark:after {
-      top: 6px;
-      left: 6px;
-      width: 6px;
-      height: 6px;
+      top: 4px;
+      left: 4px;
+      width: 10px;
+      height: 10px;
       border-radius: 80%;
       background: #75B141;
     }

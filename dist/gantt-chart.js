@@ -1325,6 +1325,7 @@ class GanttChart {
     }
 
     refreshByFilter(viewMode) {
+        this.hide_popup();
         this.setup_tasks(this.allTasks);
         this.change_view_mode(viewMode);
     }
@@ -1692,6 +1693,7 @@ class GanttChart {
                             tick_x + this.options.column_width;
                     } else {
                         let monthDivisor = qtyDaysInMonth / currentDay;
+                        monthDivisor += 1; // to adjust on current day
                         /*highlight day of Month*/
                         this.highlightMonthXCoords =
                             tick_x + this.options.column_width / monthDivisor;
@@ -1717,9 +1719,11 @@ class GanttChart {
                     } else {
                         const weekDaysCount = 6;
                         let weekDay = todayDate.getDay();
-                        if (weekDay === 0) {
+                        weekDay -= 1;
+                        //weekDay = 0;
+                        /*if (weekDay === 0) {
                             weekDay = 1;
-                        }
+                        }*/
                         let weekDivisor = weekDaysCount / weekDay;
                         /*highlight day of week*/
                         this.highlightWeekXCoords =
@@ -1773,8 +1777,14 @@ class GanttChart {
             this.options.padding / 2;
         createSVG('path', {
             d: `M ${boxXCoords} ${y} v ${height}`,
+            id: 'td',
             class: 'today-divisor',
             append_to: this.layers.grid
+        });
+        createSVG('use', {
+            id: 'use',
+            href: '#td',
+            append_to: this.$svg
         });
 
         if (this.view_is('Day') || this.view_is('Month')) {
