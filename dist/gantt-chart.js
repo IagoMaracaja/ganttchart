@@ -456,7 +456,9 @@ class Bar {
         this.action_completed = false;
         this.gantt = gantt;
         this.task = task;
-        this.startPosition = 200;
+        this.gantt.options.project_overview
+            ? (this.startPosition = 0)
+            : (this.startPosition = 200);
     }
 
     prepare() {
@@ -545,15 +547,19 @@ class Bar {
         let y = this.y;
         let height = this.height;
         const strokeSize = 1;
+        let width = this.progress_width;
         if (this.task.overdue) {
             x += strokeSize;
             y += strokeSize;
             height -= strokeSize + 1;
+            if (this.task.progress === 100) {
+                width -= 2;
+            }
         }
         this.$bar_progress = createSVG('rect', {
             x: x,
             y: y,
-            width: this.progress_width,
+            width: width,
             height: height,
             rx: this.corner_radius,
             ry: this.corner_radius,
@@ -1091,7 +1097,6 @@ class Filter {
                 radioBtnMonth.setAttribute('checked', true);
                 break;
         }
-
     }
 
     setClick(gantt) {
@@ -1138,9 +1143,9 @@ class Filter {
 
 class GanttChart {
     constructor(wrapper, tasks, options) {
-        this.createVars();
         this.setup_wrapper(wrapper);
         this.setup_options(options);
+        this.createVars();
         this.setup_tasks(tasks);
         // initialize with default view mode
         this.change_view_mode();
@@ -1148,8 +1153,12 @@ class GanttChart {
     }
 
     createVars() {
-        this.startPosition = 200;
-        this.dateStartPosition = 210;
+        this.options.project_overview
+            ? (this.startPosition = 0)
+            : (this.startPosition = 200);
+        this.options.project_overview
+            ? (this.dateStartPosition = 10)
+            : (this.dateStartPosition = 210);
         this.taskLevelOneQty = 0;
     }
 
@@ -1221,7 +1230,8 @@ class GanttChart {
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
-            language: 'en'
+            language: 'en',
+            project_overview: false
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -1231,7 +1241,10 @@ class GanttChart {
         let allTasks = [];
         for (let tsk of tasks) {
             this.taskLevelOneQty += 1;
-            const array = tsk.taskList;
+            let array = tsk.taskList;
+            if (this.options.project_overview) {
+                array.splice(0, 0, tsk);
+            }
             allTasks.push.apply(allTasks, array);
         }
 
@@ -1345,7 +1358,7 @@ class GanttChart {
             this.options.column_width = 90;
         } else if (view_mode === 'Month') {
             this.options.step = 24 * 30;
-            this.options.column_width = 90;
+            this.options.column_width = 70;
         } else if (view_mode === 'Year') {
             this.options.step = 24 * 365;
             this.options.column_width = 120;
@@ -1431,7 +1444,9 @@ class GanttChart {
         this.make_bars();
         this.set_width();
         this.set_scroll_position();
-        this.make_filter();
+        if (!this.options.project_overview) {
+            this.make_filter();
+        }
     }
 
     setup_layers() {
@@ -1532,11 +1547,9 @@ class GanttChart {
         const lines_layer = createSVG('g', { append_to: this.layers.grid });
 
         let row_width = this.dates.length * this.options.column_width;
-        //row_width += this.startPosition;
         const row_height = this.options.bar_height + this.options.padding * 2;
         const line_row_width = row_width + this.startPosition;
 
-        //let row_y = this.options.header_height + this.options.padding / 2;
         let row_y = this.options.header_height;
         for (let tsk of this.allTasks) {
             let pos = 0;
@@ -1949,12 +1962,34 @@ class GanttChart {
     }
 
     make_bars() {
-        this.make_task_header(this.taskLevelOneQty);
+        if (!this.options.project_overview) {
+            this.make_task_header(this.taskLevelOneQty);
+        }
         this.bars = this.tasks.map(task => {
             const bar = new Bar(this, task);
             this.layers.bar.appendChild(bar.group);
             return bar;
         });
+
+        this.changeSvgHeight();
+    }
+
+    /* When is Project Overview calculates the new Height for SVG, because this
+       is only done on 'make_task_header' method */
+    changeSvgHeight() {
+        if (this.options.project_overview) {
+            let newSVGHeight = this.options.header_height;
+            let header_height = 0;
+            for (let tsk of this.allTasks) {
+                header_height =
+                    (this.options.bar_height + this.options.padding * 2) *
+                    tsk.taskList.length;
+                newSVGHeight += header_height;
+            }
+            $.attr(this.$svg, {
+                height: newSVGHeight
+            });
+        }
     }
 
     set_width() {

@@ -37,7 +37,6 @@ export default class Filter {
                 radioBtnMonth.setAttribute('checked', true);
                 break;
         }
-
     }
 
     setClick(gantt) {

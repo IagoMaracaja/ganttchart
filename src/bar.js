@@ -13,7 +13,9 @@ export default class Bar {
         this.action_completed = false;
         this.gantt = gantt;
         this.task = task;
-        this.startPosition = 200;
+        this.gantt.options.project_overview
+            ? (this.startPosition = 0)
+            : (this.startPosition = 200);
     }
 
     prepare() {
@@ -102,15 +104,19 @@ export default class Bar {
         let y = this.y;
         let height = this.height;
         const strokeSize = 1;
+        let width = this.progress_width;
         if (this.task.overdue) {
             x += strokeSize;
             y += strokeSize;
             height -= strokeSize + 1;
+            if (this.task.progress === 100) {
+                width -= 2;
+            }
         }
         this.$bar_progress = createSVG('rect', {
             x: x,
             y: y,
-            width: this.progress_width,
+            width: width,
             height: height,
             rx: this.corner_radius,
             ry: this.corner_radius,
