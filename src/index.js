@@ -476,6 +476,7 @@ export default class GanttChart {
             header_height =
                 (this.options.bar_height + this.options.padding * 2) *
                 tsk.taskList.length;
+            const taskLevelOne = this.getLevelOneTask(tsk.taskList);
             const taskGroup = createSVG('g', {
                 x: 0,
                 y: y,
@@ -492,7 +493,7 @@ export default class GanttChart {
                 class: 'task-header',
                 append_to: taskGroup
             });
-            const nameTest = tsk.name;
+            const nameTest = taskLevelOne.name;
             const labelPosX = header_width / 2;
             const labelPosY = totalHeight + header_height / 2;
             createSVG('text', {
@@ -502,7 +503,7 @@ export default class GanttChart {
                 class: 'task-name',
                 append_to: taskGroup
             });
-            if (tsk.overdue) {
+            if (taskLevelOne.overdue) {
                 const overdue = '(overdue)';
                 const overdueY = labelPosY + 15;
                 createSVG('text', {
@@ -520,6 +521,19 @@ export default class GanttChart {
         $.attr(this.$svg, {
             height: newSVGHeight
         });
+    }
+
+    getLevelOneTask(taskList) {
+        let levelOne;
+        for (let tsk of taskList) {
+            if (tsk.level === 1) {
+                levelOne = tsk;
+            }
+        }
+        if (!levelOne) {
+            throw new TypeError('There is no Task Level One');
+        }
+        return levelOne;
     }
 
     make_grid_ticks() {
