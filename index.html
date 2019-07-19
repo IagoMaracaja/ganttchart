@@ -18,78 +18,109 @@
 
     var mock = [
         {
-            name: 'Whole Project',
             start: '2019-06-01',
-            end: '2019-08-10',
-            level: 0,
-            progress: 55,
+            end: '2019-06-10',
+            name: 'Whole Project',
             id: 'Task 0',
+            progress: 55,
+            level: 0,
             overdue: true,
+            showOnGraph: true,
             taskList: [
                 {
-                    start: '2019-07-06',
-                    end: '2019-08-12',
+                    start: '2019-06-10',
+                    end: '2019-06-12',
                     name: 'Kick off',
                     id: 'Task 1',
                     progress: 13,
                     level: 1,
-                    overdue: true
+                    overdue: true,
+                    showOnGraph: false,
                 },
                 {
-                    start: '2019-06-01',
-                    end: '2019-06-15',
+                    start: '2019-06-10',
+                    end: '2019-06-11',
                     name: 'Initial Task',
                     id: 'Task 2',
                     progress: 100,
                     level: 2,
-                    overdue: true
+                    overdue: true,
+                    showOnGraph: true,
                 },
                 {
-                    start: '2019-06-01',
-                    end: '2019-06-15',
+                    start: '2019-06-10',
+                    end: '2019-06-12',
                     name: 'Second Task',
                     id: 'Task 3',
                     progress: 100,
                     level: 3,
-                    overdue: false
+                    overdue: false,
+                    showOnGraph: true,
                 }
             ]
         },
         {
+            start: '2019-06-10',
+            end: '2019-06-12',
             name: 'Stabilization',
-            start: '2019-06-01',
-            end: '2019-07-10',
-            level: 0,
             id: 'Task 4',
             progress: 0,
+            level: 0,
             overdue: false,
+            showOnGraph: true,
             taskList: [
                 {
-                    start: '2019-06-01',
-                    end: '2019-07-10',
+                    start: '2019-06-10',
+                    end: '2019-06-11',
                     name: 'Refactoring code',
                     id: 'Task 5',
                     progress: 0,
                     level: 1,
-                    overdue: false
+                    overdue: false,
+                    showOnGraph: true,
                 },
                 {
-                    start: '2019-06-01',
-                    end: '2019-07-10',
+                    start: '2019-07-01',
+                    end: '2019-07-25',
                     name: 'Unit Test',
                     id: 'Task 6',
                     progress: 0,
                     level: 3,
-                    overdue: false
+                    overdue: false,
+                    showOnGraph: true,
                 },
                 {
-                    start: '2019-06-01',
-                    end: '2019-07-10',
+                    start: '2019-06-10',
+                    end: '2019-06-10',
                     name: 'Full Regression Tests',
                     id: 'Task 7',
                     progress: 0,
                     level: 3,
-                    overdue: false
+                    overdue: false,
+                    showOnGraph: true,
+                }
+            ]
+        }
+    ];
+
+    var mock2 = [
+        {
+            start: '2019-06-01',
+            end: '2019-06-10',
+            name: 'Refreshed Tasks',
+            id: 'Task 0',
+            progress: 55,
+            level: 0,
+            overdue: true,
+            taskList: [
+                {
+                    start: '2019-06-10',
+                    end: '2019-06-12',
+                    name: 'Refreshed Tasks',
+                    id: 'Task 1',
+                    progress: 13,
+                    level: 1,
+                    overdue: true
                 }
             ]
         }
@@ -112,6 +143,8 @@
         language: 'en',
         project_overview: false
     });
+
+    //gantt_chart.refresh(mock2);
 
 </script>
 </body>

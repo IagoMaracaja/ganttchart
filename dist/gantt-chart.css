@@ -7,14 +7,13 @@
   --progress-bar-level-two-color: #F0DC6F;
   --bar-level-three-color: #F9E7DA;
   --progress-bar-level-three-color: #F0C09D;
-  --gantt-container-width: 100%;
   --gantt-container-height: 100%; }
 
 .gantt .grid-background {
   fill: none; }
 
 .gantt .grid-header {
-  fill: #D8D8D8;
+  fill: #d1d1d1;
   stroke: #e0e0e0;
   stroke-width: 1.4; }
 
@@ -181,14 +180,14 @@
      */ }
 
 .gantt .lower-text, .gantt .upper-text {
-  font-size: 12px;
-  text-anchor: middle; }
+  font-size: 13px; }
 
 .gantt .upper-text {
   fill: #555; }
 
 .gantt .lower-text {
-  fill: #333; }
+  fill: #333;
+  text-anchor: middle; }
 
 .gantt .hide {
   display: none; }
@@ -199,7 +198,7 @@
   overflow-y: scroll;
   font-size: 12px;
   height: var(--gantt-container-height);
-  width: var(--gantt-container-width); }
+  /*width: var(--gantt-container-width);*/ }
   .gantt-container .popup-wrapper {
     position: absolute;
     top: 0;

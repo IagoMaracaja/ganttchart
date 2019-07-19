@@ -8,13 +8,16 @@ import Filter from './filter';
 
 export default class GanttChart {
     constructor(wrapper, tasks, options) {
-        this.setup_wrapper(wrapper);
-        this.setup_options(options);
-        this.createVars();
-        this.setup_tasks(tasks);
-        // initialize with default view mode
-        this.change_view_mode();
-        this.bind_events();
+        if (tasks) {
+            this.setup_wrapper(wrapper);
+            this.setup_options(options);
+            this.createVars();
+            this.setup_tasks(tasks);
+            // initialize with default view mode
+
+            this.change_view_mode();
+            this.bind_events();
+        }
     }
 
     createVars() {
@@ -22,8 +25,8 @@ export default class GanttChart {
             ? (this.startPosition = 0)
             : (this.startPosition = 200);
         this.options.project_overview
-            ? (this.dateStartPosition = 10)
-            : (this.dateStartPosition = 210);
+            ? (this.dateStartPosition = 5)
+            : (this.dateStartPosition = 205);
         this.taskLevelOneQty = 0;
     }
 
@@ -76,7 +79,7 @@ export default class GanttChart {
 
     setup_options(options) {
         const default_options = {
-            header_height: 65,
+            header_height: 80,
             column_width: 30,
             step: 24,
             view_modes: [
@@ -188,14 +191,18 @@ export default class GanttChart {
     }
 
     refresh(tasks) {
-        this.setup_tasks(tasks);
-        this.change_view_mode();
+        if (tasks) {
+            this.setup_tasks(tasks);
+            this.change_view_mode();
+        }
     }
 
     refreshByFilter(viewMode) {
         this.hide_popup();
-        this.setup_tasks(this.allTasks);
-        this.change_view_mode(viewMode);
+        if (this.allTasks) {
+            this.setup_tasks(this.allTasks);
+            this.change_view_mode(viewMode);
+        }
     }
 
     change_view_mode(mode = this.options.view_mode) {
@@ -257,16 +264,22 @@ export default class GanttChart {
             this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
         } else if (this.view_is('Month')) {
             this.gantt_start = date_utils.start_of(this.gantt_start, 'year');
-            this.gantt_end = date_utils.add(this.gantt_end, 1, 'year');
+            this.gantt_end = date_utils.add(this.gantt_end, 18, 'month');
         } else if (this.view_is('Year')) {
             this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
         } else if (this.view_is('Week')) {
-            this.gantt_start = date_utils.add(this.gantt_start, -5, 'day');
+            this.gantt_start = date_utils.add(this.gantt_start, -20, 'day');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'month');
         } else {
-            this.gantt_start = date_utils.add(this.gantt_start, -1, 'day');
-            this.gantt_end = date_utils.add(this.gantt_end, 5, 'day');
+            let qtDayBefore = -2;
+            let qtDayAfter = 5;
+            if (date_utils.diff(this.gantt_end, this.gantt_start, 'day') < 30) {
+                qtDayBefore = -5;
+                qtDayAfter = 35;
+            }
+            this.gantt_start = date_utils.add(this.gantt_start, qtDayBefore, 'day');
+            this.gantt_end = date_utils.add(this.gantt_end, qtDayAfter, 'day');
         }
     }
 
@@ -308,15 +321,22 @@ export default class GanttChart {
         this.make_dates();
         this.make_bars();
         this.set_width();
-        this.set_scroll_position();
+        //this.set_scroll_position();
         if (!this.options.project_overview) {
             this.make_filter();
+        }
+        if (
+            this.todayXCoord ||
+            this.highlightMonthXCoords ||
+            this.highlightWeekXCoords
+        ) {
+            this.make_grid_highlights();
         }
     }
 
     setup_layers() {
         this.layers = {};
-        const layers = ['filter', 'tasks', 'grid', 'bar'];
+        const layers = ['filter', 'tasks', 'grid', 'bar', 'divisor'];
         // make group layers
         for (let layer of layers) {
             this.layers[layer] = createSVG('g', {
@@ -366,13 +386,13 @@ export default class GanttChart {
         this.make_grid_rows();
         this.make_grid_header();
         this.make_grid_ticks();
-        if (
+        /*if (
             this.todayXCoord ||
             this.highlightMonthXCoords ||
             this.highlightWeekXCoords
         ) {
             this.make_grid_highlights();
-        }
+        }*/
 
     }
 
@@ -543,9 +563,9 @@ export default class GanttChart {
             (this.options.bar_height + this.options.padding) *
             this.tasks.length;
 
-        let weekReference = 0;
         const todayDate = date_utils.today();
         const currentDay = todayDate.getDate();
+        let lastMonth = null;
         for (let date of this.dates) {
             let tick_class = 'tick';
 
@@ -584,12 +604,15 @@ export default class GanttChart {
                     this.highlightMonthNameXCoords =
                         tick_x + this.options.column_width / 2;
                 }
-                if (date.getMonth() === 1) {
+                if (date.getMonth() === 0) {
                     tick_class += ' thick';
                 }
 
             }
             if (this.view_is('Week')) {
+                if (!lastMonth) {
+                    lastMonth = date_utils.add(date, -1, 'month').getMonth();
+                }
                 if (
                     date_utils.getNumberOfWeek(date) ===
                     date_utils.getNumberOfWeek(todayDate) &&
@@ -602,22 +625,16 @@ export default class GanttChart {
                         const weekDaysCount = 6;
                         let weekDay = todayDate.getDay();
                         weekDay -= 1;
-                        //weekDay = 0;
-                        /*if (weekDay === 0) {
-                            weekDay = 1;
-                        }*/
                         let weekDivisor = weekDaysCount / weekDay;
                         /*highlight day of week*/
                         this.highlightWeekXCoords =
                             tick_x + this.options.column_width / weekDivisor;
                     }
                 }
-
-                if (weekReference === 0 || weekReference === 5) {
+                if (date.getMonth() !== lastMonth) {
                     tick_class += ' thick';
-                    weekReference = 0;
                 }
-                weekReference++;
+                lastMonth = date.getMonth();
             }
 
             if (tick_class.includes('thick')) {
@@ -661,12 +678,7 @@ export default class GanttChart {
             d: `M ${boxXCoords} ${y} v ${height}`,
             id: 'td',
             class: 'today-divisor',
-            append_to: this.layers.grid
-        });
-        createSVG('use', {
-            id: 'use',
-            href: '#td',
-            append_to: this.$svg
+            append_to: this.layers.divisor
         });
 
         if (this.view_is('Day') || this.view_is('Month')) {
@@ -686,10 +698,9 @@ export default class GanttChart {
                 width,
                 height,
                 class: 'today-highlight',
-                append_to: this.layers.grid
+                append_to: this.$svg
             });
         }
-
     }
 
     make_divisor_highlights(x) {
@@ -743,17 +754,16 @@ export default class GanttChart {
 
     get_dates_to_draw() {
         let last_date = null;
-        const dates = this.dates.map((date, i) => {
+        return this.dates.map((date, i) => {
             const d = this.get_date_info(date, last_date, i);
             last_date = date;
             return d;
         });
-        return dates;
     }
 
     get_date_info(date, last_date, i) {
         if (!last_date) {
-            last_date = date_utils.add(date, 1, 'year');
+            last_date = date_utils.add(date, -1, 'month');
         }
         const date_text = {
             'Quarter Day_lower': date_utils.format(
@@ -770,12 +780,12 @@ export default class GanttChart {
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D', this.options.language)
                     : '',
-            Week_lower:
-            /*date.getMonth() !== last_date.getMonth()
-            ? date_utils.format(date, 'D MMM', this.options.language)
-            : date_utils.format(date, 'D', this.options.language)*/
-                date_utils.getNumberOfWeek(date),
-            Month_lower: date_utils.format(date, 'MMMM', this.options.language),
+            Week_lower: date_utils.getNumberOfWeek(date),
+            Month_lower: GanttChart.adjustMonthName(
+                date,
+                this.options.language,
+                true
+            ),
             Year_lower: date_utils.format(date, 'YYYY', this.options.language),
             'Quarter Day_upper':
                 date.getDate() !== last_date.getDate()
@@ -789,15 +799,11 @@ export default class GanttChart {
                     : '',
             Day_upper:
                 date.getMonth() !== last_date.getMonth()
-                    ? date_utils.format(date, 'MMMM', this.options.language)
+                    ? date_utils.format(date, 'MMMM YYYY', this.options.language).toUpperCase()
                     : '',
             Week_upper:
                 date.getMonth() !== last_date.getMonth()
-                    ? date_utils.format(
-                    date,
-                    'MMMM YYYY',
-                    this.options.language
-                    )
+                    ? date_utils.format(date, 'MMMM YYYY', this.options.language).toUpperCase()
                     : '',
             Month_upper:
                 date.getFullYear() !== last_date.getFullYear()
@@ -812,7 +818,7 @@ export default class GanttChart {
         const base_pos = {
             x: i * this.options.column_width + this.dateStartPosition,
             lower_y: this.options.header_height - 15,
-            upper_y: this.options.header_height - 35
+            upper_y: this.options.header_height / 3
         };
 
         const x_pos = {
@@ -821,11 +827,11 @@ export default class GanttChart {
             'Half Day_lower': this.options.column_width * 2 / 2,
             'Half Day_upper': 0,
             Day_lower: this.options.column_width / 2,
-            Day_upper: this.options.column_width * 30 / 2,
+            Day_upper: this.options.column_width / 5,
             Week_lower: 0,
-            Week_upper: this.options.column_width * 4 / 2,
+            Week_upper: this.options.column_width / 5,
             Month_lower: this.options.column_width / 2,
-            Month_upper: this.options.column_width * 12 / 2,
+            Month_upper: this.options.column_width / 5,
             Year_lower: this.options.column_width / 2,
             Year_upper: this.options.column_width * 30 / 2
         };
@@ -840,14 +846,24 @@ export default class GanttChart {
         };
     }
 
+    static adjustMonthName(date, language, isReduce) {
+        let monthName = date_utils.format(date, 'MMMM', language);
+        if (isReduce) {
+            monthName = monthName.substr(0, 3);
+        }
+        return monthName.toUpperCase();
+    }
+
     make_bars() {
         if (!this.options.project_overview) {
             this.make_task_header(this.taskLevelOneQty);
         }
         this.bars = this.tasks.map(task => {
-            const bar = new Bar(this, task);
-            this.layers.bar.appendChild(bar.group);
-            return bar;
+            if (task.showOnGraph) {
+                const bar = new Bar(this, task);
+                this.layers.bar.appendChild(bar.group);
+                return bar;
+            }
         });
 
         this.changeSvgHeight();

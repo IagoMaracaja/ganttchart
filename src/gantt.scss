@@ -27,7 +27,7 @@ $stroke-line-color: #a8a8a8 !default;
   --bar-level-three-color: #F9E7DA;
   --progress-bar-level-three-color: #F0C09D;
 
-  --gantt-container-width: 100%;
+  //--gantt-container-width: 100%;
   --gantt-container-height: 100%;
 }
 
@@ -37,7 +37,7 @@ $stroke-line-color: #a8a8a8 !default;
   }
 
   .grid-header {
-    fill: #D8D8D8;
+    fill: #d1d1d1;
     stroke: $border-color;
     stroke-width: 1.4;
   }
@@ -244,8 +244,8 @@ $stroke-line-color: #a8a8a8 !default;
   }
 
   .lower-text, .upper-text {
-    font-size: 12px;
-    text-anchor: middle;
+    font-size: 13px;
+
   }
 
   .upper-text {
@@ -254,6 +254,7 @@ $stroke-line-color: #a8a8a8 !default;
 
   .lower-text {
     fill: $text-color;
+    text-anchor: middle;
   }
 
   .hide {
@@ -267,7 +268,7 @@ $stroke-line-color: #a8a8a8 !default;
   overflow-y: scroll;
   font-size: 12px;
   height: var(--gantt-container-height);
-  width: var(--gantt-container-width);
+  /*width: var(--gantt-container-width);*/
 
   .popup-wrapper {
     position: absolute;
